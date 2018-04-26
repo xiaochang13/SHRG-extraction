@@ -1,18 +1,7 @@
 #!/usr/bin/python
-import sys
-import time
-import pickle
-import os
-import re
-import cPickle
-import random
-from amr_graph import *
 from amr_utils import *
 import logger
-import argparse
 from re_utils import *
-from collections import defaultdict
-from entities import identify_entities
 from constants import *
 from date_extraction import *
 from utils import *
@@ -241,8 +230,8 @@ def alignEntities(tok_seq, amr, align_seq, nodeid_to_frag, entity_toks, aligned_
     for (frag, wiki_label, category) in amr.extract_entities():
         if category == "NER":
             root_index = frag.roots[0]
-            if len(opt_toks) == 0:
-                logger.writeln("No alignment for the entity found")
+            # if len(opt_toks) == 0:
+            #     logger.writeln("No alignment for the entity found")
 
             (aligned_indexes, entity_spans) = all_aligned_spans(frag, opt_toks, role_toks, temp_unaligned)
             root_node = amr.nodes[frag.roots[0]]
@@ -262,18 +251,18 @@ def alignEntities(tok_seq, amr, align_seq, nodeid_to_frag, entity_toks, aligned_
                 start, end = entity_spans[0]  # Currently we only align to the first mention.
                 entity_toks |= set(xrange(start, end))
                 aligned_toks |= set(xrange(start, end))
-                logger.writeln("%d-%d: %s" % (start, end, ' '.join(tok_seq[start:end])))
+                # logger.writeln("%d-%d: %s" % (start, end, ' '.join(tok_seq[start:end])))
                 all_alignments[frag.roots[0]].append((start, end, wiki_label, "NER"))
                 node_alignment |= frag.nodes
             else:
                 entity_not_align = True
-                logger.writeln("Unaligned entity: %s" % str(frag))
-                logger.writeln("Entity mention tokens: %s" % " ".join(entity_mention_toks))
+                # logger.writeln("Unaligned entity: %s" % str(frag))
+                # logger.writeln("Entity mention tokens: %s" % " ".join(entity_mention_toks))
         elif category == "DATE":
             if frag is None:
                 entity_not_align = True
-                logger.writeln("Date with children relations:")
-                logger.writeln(str(amr))
+                # logger.writeln("Date with children relations:")
+                # logger.writeln(str(amr))
                 continue
             covered_toks, non_covered, index_to_toks = getSpanSide(align_seq, frag)
 
@@ -332,7 +321,7 @@ def alignEntities(tok_seq, amr, align_seq, nodeid_to_frag, entity_toks, aligned_
                     entity_toks.add(index)
                     node_alignment |= frag.nodes
                 else:
-                    logger.writeln("Unaligned entity: %s" % date_repr)
+                    # logger.writeln("Unaligned entity: %s" % date_repr)
                     entity_not_align = True
     return entity_not_align
 
@@ -341,7 +330,7 @@ def outputEdgeAlignment(tok_seq, amr, edge_to_toks, tok2rels):
     for edge_index in edge_to_toks:
         edge_label = amr.edges[edge_index].label
         for tok_idx in edge_to_toks[edge_index]:
-            logger.writeln("Relation align: align %s to %s" % (tok_seq[tok_idx], edge_label))
+            # logger.writeln("Relation align: align %s to %s" % (tok_seq[tok_idx], edge_label))
             tok2rels[tok_idx].add(edge_index)
 
 def alignVerbalization(tok_seq, lemma_seq, amr, verb_list, all_alignments, verb_map, aligned_toks, node_alignment,
@@ -365,8 +354,8 @@ def alignVerbalization(tok_seq, lemma_seq, amr, verb_list, all_alignments, verb_
                 matched_frags = amr.matchSubgraph(subgraph)
                 if matched_frags:
                     subgraph_repr = subgraph_str(subgraph)
-                    if len(matched_frags) > 1:
-                        logger.writeln("Verbalize %s to more than 1 occurrences!" % curr_tok)
+                    # if len(matched_frags) > 1:
+                    #     logger.writeln("Verbalize %s to more than 1 occurrences!" % curr_tok)
                     for frag_tuples in matched_frags:
                         valid = True
                         for (head, rel, tail) in frag_tuples:
@@ -375,7 +364,7 @@ def alignVerbalization(tok_seq, lemma_seq, amr, verb_list, all_alignments, verb_
                                 break
                             matched_tuples.add((head, rel, tail))
                         if valid:
-                            logger.writeln("Verbalize %d-%d, %s to %s!" % (idx, idx+1, curr_tok, subgraph_repr))
+                            # logger.writeln("Verbalize %d-%d, %s to %s!" % (idx, idx+1, curr_tok, subgraph_repr))
                             aligned_toks.add(idx)
                             for (head, rel, tail) in frag_tuples:
                                 verb_map[head].add((head, rel, tail))
@@ -511,7 +500,7 @@ def alignOtherConcepts(tok_seq, lem_seq, amr, aligned_toks, aligned_nodes, node_
                             else:
                                 template.append("NUM")
                         category = "NUMBER"
-                        logger.writeln("NUMBER template:#%s" % " ".join(template))
+                        # logger.writeln("NUMBER template:#%s" % " ".join(template))
                     elif end - start > 1:
                         category = "PHRASE"
                     all_alignments[node_idx].append((start, end, node_repr, category))
@@ -536,9 +525,9 @@ def alignOtherConcepts(tok_seq, lem_seq, amr, aligned_toks, aligned_nodes, node_
                     category = "PHRASE"
                 all_alignments[parent_idx].append((start, end, curr_repr, category))
 
-                if len(child_edges) >= 2:
-                    logger.writeln("Aligned to more than 2 concepts:")
-                    logger.writeln("&&%d-%d: %s" % (start, end, curr_repr))
+                # if len(child_edges) >= 2:
+                #     logger.writeln("Aligned to more than 2 concepts:")
+                #     logger.writeln("&&%d-%d: %s" % (start, end, curr_repr))
 
     def spanAlignment():
         span_to_nodes = defaultdict(list)
@@ -547,15 +536,15 @@ def alignOtherConcepts(tok_seq, lem_seq, amr, aligned_toks, aligned_nodes, node_
                 continue
             node_repr = amr.nodes[node_idx].node_str()
             spans = removeAligned(node_to_toks[node_idx], node_repr)
-            if len(spans) > 1:
+            # if len(spans) > 1:
                 # node_repr = amr.nodes[node_idx].node_str()
-                logger.writeln("Multiple to one alignment for concept: %s" % node_repr)
-                for start, end in spans:
-                    logger.writeln("##%d-%d: %s" % (start, end, " ".join(tok_seq[start:end])))
+                # logger.writeln("Multiple to one alignment for concept: %s" % node_repr)
+                # for start, end in spans:
+                #     logger.writeln("##%d-%d: %s" % (start, end, " ".join(tok_seq[start:end])))
             for start, end in spans:
-                if end - start > 1:
-                    logger.writeln("Multiple word mapped to concept: %s" % node_repr)
-                    logger.writeln("---%d-%d: %s : %s" % (start, end, " ".join(tok_seq[start:end]), node_repr))
+                # if end - start > 1:
+                #     logger.writeln("Multiple word mapped to concept: %s" % node_repr)
+                #     logger.writeln("---%d-%d: %s : %s" % (start, end, " ".join(tok_seq[start:end]), node_repr))
                 span_to_nodes[(start, end)].append(node_idx)
         return span_to_nodes
 
@@ -583,7 +572,7 @@ def alignOtherConcepts(tok_seq, lem_seq, amr, aligned_toks, aligned_nodes, node_
                     if idx not in aligned_toks:
                         lem = lem_seq[idx]
                         if similar(node_str, word) or similar(node_str, lem):
-                            logger.writeln("Retrieved concept map: %s, %s ; %s" % (word, lem, node_str))
+                            # logger.writeln("Retrieved concept map: %s, %s ; %s" % (word, lem, node_str))
                             category = "TOKEN"
                             if isNumber(node_str) or isNumber(word):
                                 category = "NUMBER"

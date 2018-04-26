@@ -554,7 +554,7 @@ def init_ext_frag(frag, is_pred=False, is_op=False):
                 curr_edge_label = str(amr_graph.edges[p_edge_index])
                 frag.ext_label[ext_index] = curr_edge_label
 
-def connect_adjacent(frags, logger):
+def connect_adjacent(frags):
     visited = set()
     new_frag_list = []
     updated = True
@@ -575,12 +575,6 @@ def connect_adjacent(frags, logger):
                     visited.add(cand_frag)
                     visited.add(curr_result)
                     curr_result = new_result
-                else:
-                    logger.writeln("Before:")
-                    logger.writeln(str(cand_frag))
-                    logger.writeln(str(curr_result))
-                    logger.writeln("After:")
-                    logger.writeln(str(new_result))
 
         new_frag_list.append(curr_result)
     return new_frag_list

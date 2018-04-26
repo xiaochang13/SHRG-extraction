@@ -457,7 +457,7 @@ def extract_fragments(s2g_alignment, amr_graph):
 
     for index in tok2frags:
         if len(tok2frags[index]) > 1:
-            tok2frags[index] = connect_adjacent(tok2frags[index], logger)
+            tok2frags[index] = connect_adjacent(tok2frags[index])
 
     tok2frags = rebuild_fragment_map(tok2frags)
     for index in tok2frags:
@@ -468,8 +468,6 @@ def extract_fragments(s2g_alignment, amr_graph):
 
 #Verify this fragment contains only one edge and return it
 def unique_edge(frag):
-    #assert frag.edges.count() == 1, 'Not unify edge fragment found'
-    amr_graph = frag.graph
     edge_list = []
     n_edges = len(frag.edges)
     for i in xrange(n_edges):
@@ -528,12 +526,12 @@ def categorized_amr(alignment_seq, amr, amr_statistics):
                                        edge_to_toks, all_alignments)
 
     ##Based on the alignment from node index to spans in the string
-    unaligned_set = set(xrange(len(pos_seq))) - aligned_toks
-    unaligned_idxs = sorted(list(unaligned_set))
-    logger.writeln("Unaligned tokens: %s" % (" ".join([tok_seq[i] for i in unaligned_idxs])))
+    # unaligned_set = set(xrange(len(pos_seq))) - aligned_toks
+    # unaligned_idxs = sorted(list(unaligned_set))
+    # logger.writeln("Unaligned tokens: %s" % (" ".join([tok_seq[i] for i in unaligned_idxs])))
 
-    unaligned_nodes = amr.unaligned_nodes(aligned_nodes)
-    logger.writeln("Unaligned vertices: %s" % " ".join([node.node_str() for node in unaligned_nodes]))
+    # unaligned_nodes = amr.unaligned_nodes(aligned_nodes)
+    # logger.writeln("Unaligned vertices: %s" % " ".join([node.node_str() for node in unaligned_nodes]))
 
     assert len(tok_seq) == len(pos_seq)
 

@@ -570,7 +570,7 @@ def construct_forest(args):
             print 'current inside width:', curr_width
             print 'current inorder width:', inorder_width
 
-            if projective:
+            if projective and not amr_format:
                 assert curr_width <= 1, ("A projective tree with inside width of %d" % curr_width)
                 assert inorder_width <=1, ("A projective tree with in-order width of %d" % inorder_width)
 
